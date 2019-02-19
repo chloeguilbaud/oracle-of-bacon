@@ -17,19 +17,19 @@ import java.util.stream.Collectors;
 public class APIEndPoint {
     private final Neo4JRepository neo4JRepository;
     // private final ElasticSearchRepository elasticSearchRepository;
-    // private final RedisRepository redisRepository;
+    private final RedisRepository redisRepository;
     // private final MongoDbRepository mongoDbRepository;
 
     public APIEndPoint() {
         neo4JRepository = new Neo4JRepository();
         // elasticSearchRepository = new ElasticSearchRepository();
-        // redisRepository = new RedisRepository();
+        redisRepository = new RedisRepository();
         // mongoDbRepository = new MongoDbRepository();
     }
 
     @Get("bacon-to?actor=:actorName")
     public String getConnectionsToKevinBacon(String actorName) {
-
+        redisRepository.addToLastTenSearches(actorName);
         List<AbstractMap.SimpleEntry<String, Neo4JRepository.GraphItem>> result = this
                 .neo4JRepository
                 .getConnectionsToKevinBacon(actorName)
@@ -90,11 +90,12 @@ public class APIEndPoint {
 
     @Get("last-searches")
     public List<String> last10Searches() {
-        return Arrays.asList("Peckinpah, Sam",
-                "Robbins, Tim (I)",
-                "Freeman, Morgan (I)",
-                "De Niro, Robert",
-                "Pacino, Al (I)");
+        return redisRepository.getLastTenSearches();
+        // return Arrays.asList("Peckinpah, Sam",
+        //         "Robbins, Tim (I)",
+        //         "Freeman, Morgan (I)",
+        //         "De Niro, Robert",
+        //         "Pacino, Al (I)");
     }
 
     @Get("actor?name=:actorName")

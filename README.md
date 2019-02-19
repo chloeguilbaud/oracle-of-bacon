@@ -46,33 +46,86 @@ Les données sont des données qui proviennent de imdb, le dataset est disponibl
 ## Votre mission
 Le site a été bouchonné (cf `TODO`), vous devez effectuer les tâches suivantes :
 * Importer les données dans Neo4J à l'aide de l'outil d'import : [`ìmport-tool`](http://neo4j.com/docs/operations-manual/current/tutorial/import-tool/).
-* Implémenter l'Oracle de Bacon à l'aide de Neo4J dans la méthode `com.serli.oracle.of.bacon.repository.Neo4JRepository#getConnectionsToKevinBacon`
 
 Solution : 
 ```bash
 bin/neo4j-admin import --nodes import/imdb-data/movies.csv --nodes import/imdb-data/actors.csv --relationships import/imdb-data/roles.csv
 ```
 
+* Implémenter l'Oracle de Bacon à l'aide de Neo4J dans la méthode `com.serli.oracle.of.bacon.repository.Neo4JRepository#getConnectionsToKevinBacon`
+
+
+Solution : 
+```java
+    public List<GraphItem> getConnectionsToKevinBacon(String actorName) {
+        Session session = driver.session();
+        Transaction tx = session.beginTransaction();
+
+        StatementResult result = tx.run(
+                "MATCH (bacon:Actor {name: {bacon_name}}), (actor:Actor {name: {actorName}}), path = shortestPath((bacon)-[:PLAYED_IN*]-(actor)) WITH path WHERE length(path) > 1 RETURN path",
+                parameters("bacon_name", BACON_NAME, "actorName", actorName)
+            );
+
+        return result.list()
+                    .stream()
+                    .flatMap(record -> record.values().stream().map(Value::asPath))
+                    .flatMap(p -> toGraphItems(p).stream())
+                    .collect(Collectors.toList());
+    }
+
+    private List<GraphItem> toGraphItems(Path path) {
+        List<GraphItem> graphItems = toGraphItem(path.nodes(), this::toGraphItem);
+        graphItems.addAll(toGraphItem(path.relationships(), this::toGraphItem));
+
+        return graphItems;
+    }
+
+    private <T> List<GraphItem> toGraphItem(Iterable<T> iterable, Function<T, GraphItem> toGraphItem) {
+        return StreamSupport.stream(iterable.spliterator(), false)
+                            .map(toGraphItem)
+                            .collect(Collectors.toList());
+    }
+
+    private GraphItem toGraphItem(Node n) {
+        String type = n.labels().iterator().next();
+        String property = type.equals("Actor") ? "name" : "title";
+
+        return new GraphNode(
+            n.id(),
+            n.get(property).asString(),
+            type
+        );
+    }
+
+    private GraphItem toGraphItem(Relationship relationship) {
+        return new GraphEdge(
+            relationship.id(),
+            relationship.startNodeId(),
+            relationship.endNodeId(),
+            relationship.type()
+        );
+    }
+```
+
 * Implémenter la gestion du last 10 search à l'aide de Redis dans la méthode `com.serli.oracle.of.bacon.repository.RedisRepository#getLastTenSearches`
 
 Solution : 
 ```java
-public List<?> getConnectionsToKevinBacon(String actorName) {
-    Session session = driver.session();
-    
-    String greeting = session.writeTransaction(new TransactionWork<String>(){
-        @Override
-        public String execute(Transaction tx) {
-            StatementResult result = tx.run(
-                "MATCH (bc {name: {bacon_name}}), (ran {name: {actorName}}), p = shortestPath((bc)-[:PLAYED_IN*]-(ran)) WITH p WHERE length(p) > 1 RETURN p",
-                    parameters("bacon_name", BACON_NAME, "actorName", actorName)
-            );
-            return result.single().get( 0 ).asString();
-        }
-    });
+    private final Jedis jedis;
+    private final String KEY_LAST_SEARCHES = "LAST_SEARCHES";
+    private final int MAX_LAST_SEARCHES_NUMBER = 10;
 
-    return result.list();
-}
+    public RedisRepository() {
+        this.jedis = new Jedis("127.0.0.1", 6379);
+    }
+
+    public void addToLastTenSearches(String search) {
+        this.jedis.lpush(KEY_LAST_SEARCHES, search);
+    }
+
+    public List<String> getLastTenSearches() {
+        return this.jedis.lrange(KEY_LAST_SEARCHES, 0, MAX_LAST_SEARCHES_NUMBER - 1);
+    }
 ```
 
 * Importer les données à l'iade de ElasticSearch dans `com.serli.oracle.of.bacon.loader.elasticsearch.CompletionLoader` (les liens suivants pourront vous aider : [search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search.html), [mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) et [suggest](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html))
