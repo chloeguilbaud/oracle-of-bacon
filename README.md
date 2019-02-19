@@ -59,9 +59,19 @@ Solution :
 ```java
 public List<?> getConnectionsToKevinBacon(String actorName) {
     Session session = driver.session();
+    
+    String greeting = session.writeTransaction(new TransactionWork<String>(){
+        @Override
+        public String execute(Transaction tx) {
+            StatementResult result = tx.run(
+                "MATCH (bc {name: {bacon_name}}), (ran {name: {actorName}}), p = shortestPath((bc)-[:PLAYED_IN*]-(ran)) WITH p WHERE length(p) > 1 RETURN p",
+                    parameters("bacon_name", BACON_NAME, "actorName", actorName)
+            );
+            return result.single().get( 0 ).asString();
+        }
+    });
 
-    // TODO implement Oracle of Bacon
-    return null;
+    return result.list();
 }
 ```
 
