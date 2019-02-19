@@ -132,6 +132,14 @@ Solution :
 * Implémenter la suggestion sur le nom des acteurs dans `com.serli.oracle.of.bacon.repository.ElasticSearchRepository#getActorsSuggests`
 * Implémenter la recherche des acteurs par nom à l'aide de MongoDB dans `com.serli.oracle.of.bacon.repository.MongoDbRepository#getActorByName`
 
+Solution :
+Import des données via le fichier Node `./mongo/index.js`
+```java
+    public Optional<Document> getActorByName(String name) {
+        return Optional.ofNullable(this.actorCollection.find(Filters.eq("name", name)).first());
+    }
+```
+
 L'évaluation de votre travail sera effectuée selon les critères suivants :
 * Bon fonctionnement (First make it work)
 * Qualité de la solution implémentée (Then make it good)
