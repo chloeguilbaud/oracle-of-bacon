@@ -49,7 +49,7 @@ Le site a été bouchonné (cf `TODO`), vous devez effectuer les tâches suivant
 
 Solution : 
 ```bash
-bin/neo4j-admin import --nodes import/imdb-data/movies.csv --nodes import/imdb-data/actors.csv --relationships import/imdb-data/roles.csv
+bin/neo4j-admin import --nodes:Movie import/imdb-data/movies.csv --nodes:Actor import/imdb-data/actors.csv --relationships import/imdb-data/roles.csv
 ```
 
 * Implémenter l'Oracle de Bacon à l'aide de Neo4J dans la méthode `com.serli.oracle.of.bacon.repository.Neo4JRepository#getConnectionsToKevinBacon`
