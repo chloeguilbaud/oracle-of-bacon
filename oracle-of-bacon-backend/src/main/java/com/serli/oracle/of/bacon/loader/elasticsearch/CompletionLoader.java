@@ -1,6 +1,8 @@
 package com.serli.oracle.of.bacon.loader.elasticsearch;
 
 import com.serli.oracle.of.bacon.repository.ElasticSearchRepository;
+import org.elasticsearch.client.RestHighLevelClient;
+
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -15,7 +17,6 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import java.util.function.BiConsumer;
 
 public class CompletionLoader {
