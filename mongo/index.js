@@ -13,7 +13,7 @@ const insertActors = (db, callback) => {
         .pipe(csv())
         .on('data', data => {
             actors.push({
-                "name:ID": data.name
+                "name": data.name
             });
         })
         // A la fin on créé l'ensemble des acteurs dans MongoDB
