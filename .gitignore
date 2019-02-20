@@ -1,3 +1,8 @@
 .idea/
 *.iml
 
+oracle-of-bacon-backend/.project
+oracle-of-bacon-backend/.settings/
+oracle-of-bacon-frontend/package-lock.json
+
+mongo/node_modules/
