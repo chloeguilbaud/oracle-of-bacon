@@ -1,5 +1,8 @@
 # Oracle of Bacon
 
+FIL
+Mael MAINCHAIN & Chloe GUILBAUD
+
 ## Présentation
 
 L'objectif de l'application est de déterminer le degré de séparation entre Kevin Bacon et un acteur donné via ses rôles dans les films.
@@ -130,8 +133,9 @@ Solution :
 
 * Importer les données à l'aide de ElasticSearch dans `com.serli.oracle.of.bacon.loader.elasticsearch.CompletionLoader` (les liens suivants pourront vous aider : [search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search.html), [mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) et [suggest](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html))
 
-Solution : 
+Solution :
 Le code suivant permet l'insertion des données. Kibana permet la visualisation des insertions. Les données sont correctement enregistrées.
+
 ```java
 try {
     BulkRequest request = new BulkRequest();
@@ -154,9 +158,11 @@ try {
 }
 System.out.println(line);
 ```
+
 Dans un deuxième temps nous avons mit en place l'autocompletion. Le code actuellement en place, permet cette fonctionnalités. Toutefois, lorsque nous écrivons dans le champs de saisie, une erreur s'affiche à la place des suggestions. Nous ne sommes pas parvenu à résoudre ce problème. Malgré tout, le degré de séparation entre Kevin Bacon et un acteur donné est fonctionnel.
 
 * Implémenter la suggestion sur le nom des acteurs dans `com.serli.oracle.of.bacon.repository.ElasticSearchRepository#getActorsSuggests`
+
 Voir le problème exposé dans la question précédente.
 
 * Implémenter la recherche des acteurs par nom à l'aide de MongoDB dans `com.serli.oracle.of.bacon.repository.MongoDbRepository#getActorByName`
