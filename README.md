@@ -129,7 +129,36 @@ Solution :
 ```
 
 * Importer les données à l'aide de ElasticSearch dans `com.serli.oracle.of.bacon.loader.elasticsearch.CompletionLoader` (les liens suivants pourront vous aider : [search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search.html), [mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) et [suggest](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html))
+
+Solution : 
+Le code suivant permet l'insertion des données. Kibana permet la visualisation des insertions. Les données sont correctement enregistrées.
+```java
+try {
+    BulkRequest request = new BulkRequest();
+    String nom = "";
+    String prenom = "";
+    if(line.contains(",")) {
+        nom = line.substring(0, line.indexOf(","));
+        prenom = line.substring(line.indexOf(","));
+    }
+    if (count.get() > 2) {
+        request.add(new IndexRequest("actors").id(UUID.randomUUID().toString()).type("actor")
+                        .source(XContentType.JSON,
+                                "nom", nom, "prenom", prenom)
+        );
+        client.bulk(request);
+    }
+    count.incrementAndGet();
+} catch (IOException e) {
+    e.printStackTrace();
+}
+System.out.println(line);
+```
+Dans un deuxième temps nous avons mit en place l'autocompletion. Le code actuellement en place, permet cette fonctionnalités. Toutefois, lorsque nous écrivons dans le champs de saisie, une erreur s'affiche à la place des suggestions. Nous ne sommes pas parvenu à résoudre ce problème. Malgré tout, le degré de séparation entre Kevin Bacon et un acteur donné est fonctionnel.
+
 * Implémenter la suggestion sur le nom des acteurs dans `com.serli.oracle.of.bacon.repository.ElasticSearchRepository#getActorsSuggests`
+Voir le problème exposé dans la question précédente.
+
 * Implémenter la recherche des acteurs par nom à l'aide de MongoDB dans `com.serli.oracle.of.bacon.repository.MongoDbRepository#getActorByName`
 
 Solution :
@@ -140,6 +169,9 @@ Le code java :
         return Optional.ofNullable(this.actorCollection.find(Filters.eq("name", name)).first());
     }
 ```
+
+
+## Evaluation
 
 L'évaluation de votre travail sera effectuée selon les critères suivants :
 * Bon fonctionnement (First make it work)
